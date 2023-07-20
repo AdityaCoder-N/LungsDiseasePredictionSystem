@@ -1,6 +1,14 @@
 
 # Lung Disease Prediction System
 
+## Working Link
+- http://34.93.183.143/
+
+
+## Demo
+https://github.com/AdityaCoder-N/LungsDiseasePredictionSystem/assets/91337266/843c28d3-4546-469a-b880-23dd40bb29f9
+
+
 ## Overview
 The Lung Disease Prediction System is a web application that uses deep learning models to predict lung diseases, specifically Tuberculosis and Pneumonia, from X-ray images of patients. The system is built using Streamlit for the frontend and TensorFlow/Keras for the deep learning models.
 
@@ -40,7 +48,9 @@ streamlit run interface.py
 - The Pneumonia prediction model has an input shape of (256, 256, 1) and uses a CNN architecture with batch normalization and dropout layers.
 
 ## Dataset
-The X-ray images used for training and evaluating the models were obtained from the public dataset // to be added
+- The X-ray images used for training and evaluating the models were obtained from the public dataset 
+- Tuberculosis dataset : https://www.kaggle.com/datasets/kmader/pulmonary-chest-xray-abnormalities
+- Pneumonia dataset : https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
 
 
 ## Contact
