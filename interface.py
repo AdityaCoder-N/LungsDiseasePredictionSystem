@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import tensorflow as tf
+import os
 
 image_size = 256
 batch_size=32
@@ -32,7 +33,7 @@ def predict_pneumonia(image):
     confidence=0
 
     if(prediction[0][0] <=0.5):
-        predicted_class = "Pneumonia"
+        predicted_class = "Pneumonia Infected"
         confidence = 100.00-round(100 *(np.max(prediction[0]) ),2)
     else:
         predicted_class = "Healthy Lung"
@@ -76,39 +77,43 @@ with st.sidebar:
         ['Tuberculosis Prediction', 'Pneumonia Prediction']
     )
 
+# Function to predict based on the selected disease
+def predict(selected, image):
+    if selected == 'Tuberculosis Prediction':
+        return predict_tb(image)
+    elif selected == 'Pneumonia Prediction':
+        return predict_pneumonia(image)
 
-# Tuberculosis Prediction Page
-if selected == 'Tuberculosis Prediction':
-    st.title('Tuberculosis Prediction using CNN')
+# Function to display default images based on the selected disease
+def display_default_images(selected, folder_path):
+    default_images = os.listdir(folder_path)
+    selected_image = st.selectbox(f"Select Default {selected} Image:", default_images, index=0)
+    image_path = os.path.join(folder_path, selected_image)
+    image = Image.open(image_path)
+    st.image(image, caption=f'Default {selected} X-ray Image', use_column_width=True)
+    return image
 
-    # File uploader for X-ray image
-    uploaded_file = st.file_uploader("Upload X-ray image", type=["png", "jpg", "jpeg"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded X-ray Image', use_column_width=True)
-        # preprocessed_image = preprocess_image_tb(image)
-
-        # Button to perform prediction
-        if st.button('Predict'):
-            predicted_class, confidence = predict_tb(image)
-            st.markdown("<h4 style='text-align: center; color: black;'>Prediction: <strong>{}</strong></h4>".format(predicted_class), unsafe_allow_html=True)
-            st.markdown("<h4 style='text-align: center; color: black;'>Confidence: <strong>{}</strong></h4>".format(confidence), unsafe_allow_html=True)
-
-
-# Pneumonia Prediction Page
-
-if selected == 'Pneumonia Prediction':
-    st.title('Pneumonia Prediction using CNN')
+# Tuberculosis or Pneumonia Prediction Page
+if selected in ['Tuberculosis Prediction', 'Pneumonia Prediction']:
+    st.title(f'{selected} using CNN')
 
     # File uploader for X-ray image
-    uploaded_file = st.file_uploader("Upload X-ray image", type=["png", "jpg", "jpeg"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded X-ray Image', use_column_width=True)
-        # preprocessed_image = preprocess_image_pneumonia(image)
+    uploaded_file = st.file_uploader(f"Upload {selected} X-ray image", type=["png", "jpg", "jpeg"])
 
-        # Button to perform prediction
-        if st.button('Predict'):
-            predicted_class, confidence = predict_pneumonia(image)
-            st.markdown("<h4 style='text-align: center; color: black;'>Prediction: <strong>{}</strong></h4>".format(predicted_class), unsafe_allow_html=True)
-            st.markdown("<h4 style='text-align: center; color: black;'>Confidence: <strong>{}</strong></h4>".format(confidence), unsafe_allow_html=True)
+    # Use different default image folders based on the selected disease
+    default_image_folder = 'default_images_tb' if selected == 'Tuberculosis Prediction' else 'default_images_pn'
+
+    # Add option to choose default images
+    if st.checkbox(f"Use Default {selected} Image"):
+        image = display_default_images(selected, default_image_folder)
+    elif uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        st.image(image, caption=f'Uploaded {selected} X-ray Image', use_column_width=True)
+
+    # Button to perform prediction
+    if st.button('Predict'):
+        predicted_class, confidence = predict(selected, image)
+        st.markdown("<h4 style='text-align: center; color: black;'>Prediction: <strong>{}</strong></h4>".format(predicted_class),
+                    unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center; color: black;'>Confidence: <strong>{}%</strong></h4>".format(confidence),
+                    unsafe_allow_html=True)
